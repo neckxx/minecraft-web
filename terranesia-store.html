@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraNesia Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            transform: translateX(-100%);
+            animation: slideIn 0.8s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .nav-item:nth-child(1) { animation-delay: 0.1s; }
+        .nav-item:nth-child(2) { animation-delay: 0.2s; }
+        .nav-item:nth-child(3) { animation-delay: 0.3s; }
+        .nav-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3); }
+            to { text-shadow: 2px 2px 20px rgba(255, 255, 255, 0.5); }
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .ranks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .rank-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .rank-card:nth-child(1) { animation-delay: 0.2s; }
+        .rank-card:nth-child(2) { animation-delay: 0.4s; }
+        .rank-card:nth-child(3) { animation-delay: 0.6s; }
+        .rank-card:nth-child(4) { animation-delay: 0.8s; }
+        .rank-card:nth-child(5) { animation-delay: 1s; }
+        .rank-card:nth-child(6) { animation-delay: 1.2s; }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .rank-card:hover::before {
+            opacity: 1;
+        }
+
+        .rank-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .rank-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .rank-card:nth-child(2) .rank-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .rank-card:nth-child(3) .rank-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .rank-card:nth-child(4) .rank-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .rank-card:nth-child(5) .rank-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .rank-card:nth-child(6) .rank-icon { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .rank-title {
+            font-size: 1.5rem;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .rank-description {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 4rem 1rem 2rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .ranks-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+            }
+
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+
+            .rank-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s ease-out 2s forwards;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="background-animation"></div>
+
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container">
+        <nav class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-store"></i>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showSection('home')">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('coins')">
+                        <i class="fas fa-coins"></i>
+                        Coins
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('ranks')">
+                        <i class="fas fa-trophy"></i>
+                        Ranks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('payment')">
+                        <i class="fas fa-credit-card"></i>
+                        Payment
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div id="home-section" class="section active">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Welcome to TerraNesia Store</h1>
+                    <p class="welcome-subtitle">Silahkan Melihat-lihat</p>
+                </div>
+
+                <div class="ranks-grid">
+                    <div class="rank-card" onclick="selectRank('Rank1')">
+                        <div class="rank-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h3 class="rank-title">Rank 1</h3>
+                        <p class="rank-description">Premium rank dengan benefit eksklusif dan akses prioritas</p>
+                    </div>
+
+                    <div class="rank-card" onclick="selectRank('Rank2')">
+                        <div class="rank-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3 class="rank-title">Rank 2</h3>
+                        <p class="rank-description">Advanced rank dengan fitur tambahan dan reward menarik</p>
+                    </div>
+
+                    <div class="rank-card" onclick="selectRank('Rank3')">
+                        <div class="rank-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="rank-title">Rank 3</h3>
+                        <p class="rank-description">Basic rank untuk memulai perjalanan gaming Anda</p>
+                    </div>
+
+                    <div class="rank-card" onclick="selectRank('VIP')">
+                        <div class="rank-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3 class="rank-title">VIP Rank</h3>
+                        <p class="rank-description">Ultimate experience dengan semua fitur premium unlocked</p>
+                    </div>
+
+                    <div class="rank-card" onclick="selectRank('Elite')">
+                        <div class="rank-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h3 class="rank-title">Elite Rank</h3>
+                        <p class="rank-description">Untuk player hardcore dengan skill tingkat tinggi</p>
+                    </div>
+
+                    <div class="rank-card" onclick="selectRank('Legend')">
+                        <div class="rank-icon">
+                            <i class="fas fa-dragon"></i>
+                        </div>
+                        <h3 class="rank-title">Legend Rank</h3>
+                        <p class="rank-description">Status legendary untuk master player sejati</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="coins-section" class="section" style="display: none;">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Coins Store</h1>
+                    <p class="welcome-subtitle">Beli coins untuk upgrade pengalaman gaming</p>
+                </div>
+                <!-- Coins content here -->
+            </div>
+
+            <div id="ranks-section" class="section" style="display: none;">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Rank System</h1>
+                    <p class="welcome-subtitle">Lihat semua rank yang tersedia</p>
+                </div>
+                <!-- Ranks content here -->
+            </div>
+
+            <div id="payment-section" class="section" style="display: none;">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Payment</h1>
+                    <p class="welcome-subtitle">Metode pembayaran yang aman dan terpercaya</p>
+                </div>
+                <!-- Payment content here -->
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2025 TerraNesia Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Section navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(sectionName + '-section').style.display = 'block';
+
+            // Update active nav link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+
+        // Rank selection
+        function selectRank(rankName) {
+            // Add ripple effect
+            const card = event.currentTarget;
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s linear';
+            ripple.style.left = event.offsetX - 10 + 'px';
+            ripple.style.top = event.offsetY - 10 + 'px';
+            ripple.style.width = '20px';
+            ripple.style.height = '20px';
+            
+            card.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+
+            // Show selection feedback
+            setTimeout(() => {
+                alert(`Anda memilih ${rankName}! Silakan lanjutkan ke pembayaran.`);
+            }, 300);
+        }
+
+        // Close mobile sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            
+            if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scrolling and performance optimization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling
+            document.documentElement.style.scrollBehavior = 'smooth';
+            
+            // Intersection Observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all animated elements
+            document.querySelectorAll('.rank-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+
+        // Add parallax effect to background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.background-animation');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        });
+
+        // Performance optimization: Throttle scroll events
+        function throttle(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const throttledScroll = throttle(() => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.background-animation');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }, 10);
+
+        window.addEventListener('scroll', throttledScroll);
+    </script>
+</body>
+</html>
